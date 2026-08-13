@@ -1,0 +1,6 @@
+app:
+  seed-data: true
+
+logging:
+  level:
+    com.openex: DEBUG

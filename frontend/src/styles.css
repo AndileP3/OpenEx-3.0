@@ -1,0 +1,169 @@
+:root {
+  --bg: #0b0e14;
+  --panel: #131720;
+  --border: #232838;
+  --text: #e6e9ef;
+  --muted: #7d8598;
+  --green: #26a69a;
+  --red: #ef5350;
+  --accent: #5b8def;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+.status-dot.connected { background: var(--green); }
+.status-dot.disconnected { background: var(--red); }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.panel h2 {
+  font-size: 14px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 12px;
+}
+
+.book-row {
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+  padding: 3px 0;
+  font-size: 13px;
+}
+
+.asks .book-row { color: var(--red); }
+.bids .book-row { color: var(--green); }
+
+.order-form label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 10px 0 4px;
+}
+
+.order-form input, .order-form select {
+  width: 100%;
+  padding: 8px;
+  background: #0e1219;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.side-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.side-toggle button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #0e1219;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.side-toggle button.active-buy { background: var(--green); border-color: var(--green); color: #04231f; }
+.side-toggle button.active-sell { background: var(--red); border-color: var(--red); color: #2b0605; }
+
+.submit-btn {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--accent);
+  color: white;
+}
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.balances { display: flex; gap: 16px; margin-top: 8px; }
+.balance-chip { background: #0e1219; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-size: 13px; }
+
+.trade-tape .trade-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+.trade-row.buy { color: var(--green); }
+.trade-row.sell { color: var(--red); }
+
+.error-banner {
+  background: #2b0605;
+  border: 1px solid var(--red);
+  color: #ffb4b0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.account-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.account-bar input {
+  padding: 8px;
+  background: #0e1219;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.account-bar button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #0e1219;
+  color: var(--text);
+  cursor: pointer;
+}

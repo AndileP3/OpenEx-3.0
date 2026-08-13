@@ -1,0 +1,9 @@
+fastapi==0.111.0
+uvicorn==0.30.1
+httpx==0.27.0
+pydantic==2.8.2
+
+# Uncomment to enable the real LLM agent (Day 15-19 of the plan):
+# langchain==0.2.11
+# langchain-community==0.2.10
+# Requires Ollama running locally: https://ollama.com
