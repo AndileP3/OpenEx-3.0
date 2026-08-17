@@ -9,6 +9,7 @@ CREATE TABLE accounts (
     id          UUID PRIMARY KEY,
     name        TEXT NOT NULL,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    
 );
 
 -- One row per (account, asset). This is the fast-read cache of balance;
