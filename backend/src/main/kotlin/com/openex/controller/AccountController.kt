@@ -16,6 +16,10 @@ class AccountController(
     private val accountRepository: AccountRepository
 ) {
 
+    @GetMapping
+    fun list(): List<AccountResponse> =
+        accountRepository.findAll().sortedBy { it.name }.map { AccountResponse(it.id, it.name) }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     fun create(@Valid @RequestBody req: CreateAccountRequest): AccountResponse {
