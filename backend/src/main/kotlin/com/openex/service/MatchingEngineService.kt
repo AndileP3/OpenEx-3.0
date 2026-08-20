@@ -7,7 +7,6 @@ import com.openex.domain.OrderType
 import com.openex.domain.Trade
 import com.openex.dto.OrderBookSnapshot
 import com.openex.dto.PriceLevelDto
-import com.openex.exception.InsufficientFundsException
 import com.openex.repository.OrderRepository
 import com.openex.repository.TradeRepository
 import com.openex.websocket.MarketDataWebSocketHandler
@@ -75,15 +74,14 @@ class MatchingEngineService(
     fun getSnapshot(symbol: String, depth: Int = 20): OrderBookSnapshot {
         val book = bookFor(symbol)
         synchronized(book.lock) {
-            fun aggregate(entries: List<BookEntry>): List<PriceLevelDto> =
+            fun aggregate(entries: List<BookEntry>, descending: Boolean = false): List<PriceLevelDto> =
                 entries.groupBy { it.price }
                     .toSortedMap()
+                    .let { levels -> if (descending) levels.toSortedMap(reverseOrder()) else levels }
                     .entries.take(depth)
                     .map { (price, list) -> PriceLevelDto(price, list.sumOf { it.remaining }) }
 
-            // bids should show highest first, asks lowest first - groupBy+toSortedMap
-            // sorts ascending, so reverse for bids.
-            val bidLevels = aggregate(book.bids).sortedByDescending { it.price }.take(depth)
+            val bidLevels = aggregate(book.bids, descending = true)
             val askLevels = aggregate(book.asks).take(depth)
             return OrderBookSnapshot(symbol, bidLevels, askLevels)
         }
@@ -92,10 +90,10 @@ class MatchingEngineService(
     data class SubmitResult(val order: Order, val trades: List<Trade>)
 
     /**
-     * Places `orderDoc` (already persisted with status OPEN) against the book,
-     * matching price-time priority. Settles funds via WalletService per fill;
-     * if the taker runs out of funds mid-match, matching stops there rather
-     * than partially applying an unfunded fill.
+    * Places `orderDoc` (already persisted with status OPEN) against the book,
+    * matching price-time priority. Settles funds via WalletService per fill.
+    * An insufficient-funds error aborts the transaction so no unfunded order
+    * or partial settlement is left behind.
      */
     @Transactional
     fun submitOrder(order: Order, baseAsset: String, quoteAsset: String): SubmitResult {
@@ -128,21 +126,15 @@ class MatchingEngineService(
                 val buyerAccountId = if (isBuy) order.accountId else restingOrder.accountId
                 val sellerAccountId = if (isBuy) restingOrder.accountId else order.accountId
 
-                try {
-                    walletService.settleTrade(
-                        buyerAccountId = buyerAccountId,
-                        sellerAccountId = sellerAccountId,
-                        baseAsset = baseAsset,
-                        quoteAsset = quoteAsset,
-                        quantity = fillQty,
-                        price = fillPrice,
-                        tradeId = "${order.id}-${resting.orderId}"
-                    )
-                } catch (ex: InsufficientFundsException) {
-                    // Whoever is short stops the match here; taker's remainder
-                    // is left unfilled (and, for market orders, cancelled below).
-                    break
-                }
+                walletService.settleTrade(
+                    buyerAccountId = buyerAccountId,
+                    sellerAccountId = sellerAccountId,
+                    baseAsset = baseAsset,
+                    quoteAsset = quoteAsset,
+                    quantity = fillQty,
+                    price = fillPrice,
+                    tradeId = "${order.id}-${resting.orderId}"
+                )
 
                 remaining = remaining.subtract(fillQty)
                 resting.remaining = resting.remaining.subtract(fillQty)
